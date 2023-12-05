@@ -16,7 +16,16 @@ from logging import DEBUG, debug, getLogger
 
 getLogger().setLevel(DEBUG)
 
-
+#___________________________________________________________
+#decision funcs
+#___________________________________________________________
+"""TO DO"""
+# def decision(size: list, figure: list, field: list) -> list:
+#     pass
+"""TO DO"""
+#___________________________________________________________
+#Input funcs
+#___________________________________________________________
 def parse_field_info():
     """
     Parse the info about the field.
@@ -29,10 +38,13 @@ def parse_field_info():
     Plateau 15 17:
     """
     l = input()
+    l = l.replace(':', '').split(' ')
+    l = [int(l[-2]), int(l[-1])]
     debug(f"Description of the field: {l}")
+    return l
 
 
-def parse_field(player: int):
+def parse_field(player: int, size:list):
     """
     Parse the field.
 
@@ -72,15 +84,20 @@ def parse_field(player: int):
     :param player int: Represents whether we're the first or second player
     """
     move = None
-    for i in range(16):
+    res = []
+    for i in range(size[0]+1):
         l = input()
+        if i != 0:
+            l = l.split()[1]
+            res.append([i for i in l])
         debug(f"Field: {l}")
         if move is None:
             c = l.lower().find("o" if player == 1 else "x")
             if c != -1:
                 move = i - 1, c - 4
+    debug(res)
     assert move is not None
-    return move
+    return move, res
 
 
 def parse_figure():
@@ -97,12 +114,16 @@ def parse_figure():
     **
     ..
     """
+    result = []
     l = input()
     debug(f"Piece: {l}")
     height = int(l.split()[1])
     for _ in range(height):
         l = input()
         debug(f"Piece: {l}")
+        result.append([i for i in l])
+    debug(result)
+    return result
 
 
 def step(player: int):
@@ -112,9 +133,10 @@ def step(player: int):
     :param player int: Represents whether we're the first or second player
     """
     move = None
-    parse_field_info()
-    move = parse_field(player)
-    parse_figure()
+    size = parse_field_info()
+    move, field = parse_field(player, size)
+    figure = parse_figure()
+    move = decision(size, figure, field)
     return move
 
 
