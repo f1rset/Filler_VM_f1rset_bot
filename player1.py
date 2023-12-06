@@ -4,9 +4,9 @@
     This is an example of a bot for the 3rd project.
     ...a pretty bad bot to be honest -_-
 """
-
+import sys
 from logging import DEBUG, debug, getLogger
-
+sys.setrecursionlimit(10000)
 # We use the debugger to print messages to stderr
 # You cannot use print as you usually do, the vm would intercept it
 # You can hovever do the following:
@@ -20,8 +20,44 @@ getLogger().setLevel(DEBUG)
 #decision funcs
 #___________________________________________________________
 """TO DO"""
-# def decision(size: list, figure: list, field: list) -> list:
-#     pass
+def coords(figure: list, field: list, player: int):
+    figure_coords = []
+    for y_f, line_f in enumerate(figure):
+        for x_f, symbol_f in enumerate(line_f):
+            if symbol_f == '*':
+                figure_coords.append((x_f, y_f))
+    field_coords = []
+    field_coords_enemy = []
+    for y, line in enumerate(field):
+        for x, symbol in enumerate(line):
+            # debug(player)
+            if symbol == 'O':
+                field_coords.append((x, y))
+            if symbol == 'X':
+                field_coords_enemy.append((x, y))
+    if player != 1:
+        field_coords, field_coords_enemy = field_coords_enemy, field_coords
+    return figure_coords, field_coords, field_coords_enemy
+
+def parse_move(figure_coords, field_coords, size, size_f, player, field_enemy):
+    if field_coords == []:
+        return None
+    # if player == 1:
+    x, y = field_coords[0][0], field_coords[0][1]
+    # else:
+        # x, y = field_coords[-1][0], field_coords[-1][1]
+    dx = x-figure_coords[0][0]
+    dy = y - figure_coords[0][1]
+    for coord in figure_coords:
+        if coord != figure_coords[0]:
+            if (coord[0] + dx, coord[1]+dy) in field_coords + field_enemy:
+                field_coords.remove((x, y))
+                return parse_move(figure_coords, field_coords, size, size_f, player, field_enemy)
+    if dx+size_f[1] > size[0]-1 or dy+size_f[0] > size[1]-1 or dx < 0 or dy < 0:
+        field_coords.remove((x, y))
+        return parse_move(figure_coords, field_coords, size, size_f, player, field_enemy)
+    return [dy, dx]
+
 """TO DO"""
 #___________________________________________________________
 #Input funcs
@@ -95,7 +131,7 @@ def parse_field(player: int, size:list):
             c = l.lower().find("o" if player == 1 else "x")
             if c != -1:
                 move = i - 1, c - 4
-    debug(res)
+    # debug(res)
     assert move is not None
     return move, res
 
@@ -118,12 +154,13 @@ def parse_figure():
     l = input()
     debug(f"Piece: {l}")
     height = int(l.split()[1])
+    width = int(l.replace(':', '').split()[-1])
     for _ in range(height):
         l = input()
         debug(f"Piece: {l}")
         result.append([i for i in l])
-    debug(result)
-    return result
+    # debug(result)
+    return result, [height, width]
 
 
 def step(player: int):
@@ -135,8 +172,10 @@ def step(player: int):
     move = None
     size = parse_field_info()
     move, field = parse_field(player, size)
-    figure = parse_figure()
-    move = decision(size, figure, field)
+    figure, size_f = parse_figure()
+    # debug(figure)
+    figure_coords, field_coords, field_coords_enemy = coords(figure, field, player)
+    move = parse_move(figure_coords, field_coords, size, size_f, player, field_coords_enemy)
     return move
 
 
