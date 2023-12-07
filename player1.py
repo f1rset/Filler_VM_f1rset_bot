@@ -37,9 +37,9 @@ def coords(field, figure, player):
                 X_coords.append((y, x))
     if player == 1:
         return O_coords, X_coords, star_coords
-def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords, size):
+def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords, size, size_f):
     dy, dx = placed_coord[0]-to_be_placed[0], placed_coord[1]-to_be_placed[1]
-    if dy > size[0] or dx > size[1] or dy < 0 or dx < 0:
+    if dy+size_f[0] > size[0] or dx+size_f[1] > size[1] or dy < 0 or dx < 0:
         return None
     for coord in figure_coords:
         if coord != to_be_placed:
@@ -47,11 +47,11 @@ def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords
                 return None
     return [dy, dx]
 
-def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list) -> list:
+def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list, size_f) -> list:
     result = []
     for placed_coord in player_coords_copy:
         for to_be_placed in figure_coords:
-            result.append(check_avialable(placed_coord, to_be_placed, player_coords+enemy_coords, figure_coords, size))
+            result.append(check_avialable(placed_coord, to_be_placed, player_coords+enemy_coords, figure_coords, size, size_f))
     result = [k for k in result if k is not None]
     debug(f'possible = {result}')
     return result[random.randint(0, len(result)-1)]
@@ -146,13 +146,14 @@ def parse_figure():
     result = []
     l = input()
     debug(f"Piece: {l}")
+    size = [int(l.replace(':','').split()[1]),int(l.replace(':','').split()[1])]
     height = int(l.split()[1])
     for _ in range(height):
         l = input()
         debug(f"Piece: {l}")
         result.append([i for i in l])
     debug(result)
-    return result
+    return result, size
 
 
 def step(player: int):
@@ -164,9 +165,9 @@ def step(player: int):
     move = None
     size = parse_field_info()
     field = parse_field(player, size)
-    figure = parse_figure()
+    figure, size_f = parse_figure()
     player_coords, enemy_coords, figure_coords = coords(field, figure, player)
-    move = decision(player_coords, enemy_coords, figure_coords, copy.deepcopy(player_coords), size)
+    move = decision(player_coords, enemy_coords, figure_coords, copy.deepcopy(player_coords), size, size_f)
     return move
 
 
