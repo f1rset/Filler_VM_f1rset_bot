@@ -21,6 +21,34 @@ getLogger().setLevel(DEBUG)
 #decision funcs
 #___________________________________________________________
 """TO DO"""
+def choose_best(result, used_coords, size, one_coord):
+    lst = []
+    for x in range(size[1]-1, size[1]+2):
+        for y in range(size[0]-1, size[0]+2):
+            lst.append((y, x))
+    debug(lst)
+    count = 0
+    for i in lst:
+        if i in used_coords:
+            count += 1
+    if count <=2:
+        res_count_y = 0
+        counter = 0
+        for j in one_coord:
+            res_count_y += j[0]
+            counter+=1
+        res_count_y = res_count_y/counter
+        if res_count_y < size[0]/2:
+            result = sorted(result, key=lambda x: (x[0]+size[0])/2 + (x[1] + size[1])/2, reverse=True)
+        elif res_count_y > size[0]/2:
+            result = sorted(result, key=lambda x: (x[0]+size[0])/2 + (x[1] + size[1])/2)
+        return result[0]
+    else:
+        if random.randint(1,3) == 1:
+            result = sorted(result, key=lambda x: x[1])
+        else:
+            result = sorted(result, key=lambda x: x[0])
+        return result[0]
 def coords(field, figure, player):
     X_coords = []
     O_coords = []
@@ -58,9 +86,10 @@ def decision(player_coords: list, enemy_coords: list, figure_coords: list, playe
         for to_be_placed in figure_coords:
             result.append(check_avialable(placed_coord, to_be_placed, player_coords+enemy_coords, figure_coords, size, size_f))
     result = [k for k in result if k is not None]
-    debug(f'possible = {result}')
+    # debug(f'possible = {result}')
     try:
-        return result[random.randint(0, len(result)-1)]
+        # debug(f'{choose_best(result, player_coords+enemy_coords, size, figure_coords[0])}')
+        return choose_best(result, player_coords+enemy_coords, size, player_coords)
     except ValueError:
         return [0, 0]
 """TO DO"""
@@ -81,7 +110,7 @@ def parse_field_info():
     l = input()
     l = l.replace(':', '').split(' ')
     l = [int(l[-2]), int(l[-1])]
-    debug(f"Description of the field: {l}")
+    # debug(f"Description of the field: {l}")
     return l
 
 
@@ -131,8 +160,8 @@ def parse_field(player: int, size:list):
         if i != 0:
             l = l.split()[1]
             res.append([i for i in l])
-        debug(f"Field: {l}")
-    debug(res)
+        # debug(f"Field: {l}")
+    # debug(res)
     # assert move is not None
     return res
 
@@ -155,13 +184,13 @@ def parse_figure():
     l = input()
     debug(f"Piece: {l}")
     size = [int(l.replace(':','').split()[1]),int(l.replace(':','').split()[2])]
-    debug(f'size = {size}')
+    # debug(f'size = {size}')
     height = int(l.split()[1])
     for _ in range(height):
         l = input()
-        debug(f"Piece: {l}")
+        # debug(f"Piece: {l}")
         result.append([i for i in l])
-    debug(result)
+    # debug(result)
     return result, size
 
 
