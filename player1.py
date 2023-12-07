@@ -37,14 +37,18 @@ def coords(field, figure, player):
                 X_coords.append((y, x))
     if player == 1:
         return O_coords, X_coords, star_coords
+    elif player == 2:
+        return X_coords, O_coords, star_coords
 def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords, size, size_f):
     dy, dx = placed_coord[0]-to_be_placed[0], placed_coord[1]-to_be_placed[1]
-    if dy+size_f[0] > size[0] or dx+size_f[1] > size[1] or dy < 0 or dx < 0:
+    if (dy+size_f[0] > size[0]-1) or (dx+size_f[1] > size[1]-1) or dy < 0 or dx < 0:
         return None
     for coord in figure_coords:
         if coord != to_be_placed:
             if (coord[0]+dy, coord[1]+dx) in unavilable_coords:
                 return None
+    # debug(f'{dy+size_f[0]} > {size[0]-1}')
+    # debug(f'{dx+size_f[1]} > {size[1]-1}')
     return [dy, dx]
 
 def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list, size_f) -> list:
@@ -146,7 +150,8 @@ def parse_figure():
     result = []
     l = input()
     debug(f"Piece: {l}")
-    size = [int(l.replace(':','').split()[1]),int(l.replace(':','').split()[1])]
+    size = [int(l.replace(':','').split()[1]),int(l.replace(':','').split()[2])]
+    debug(f'size = {size}')
     height = int(l.split()[1])
     for _ in range(height):
         l = input()
