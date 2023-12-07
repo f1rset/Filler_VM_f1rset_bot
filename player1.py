@@ -4,7 +4,8 @@
     This is an example of a bot for the 3rd project.
     ...a pretty bad bot to be honest -_-
 """
-
+import copy
+import random
 from logging import DEBUG, debug, getLogger
 
 # We use the debugger to print messages to stderr
@@ -20,8 +21,40 @@ getLogger().setLevel(DEBUG)
 #decision funcs
 #___________________________________________________________
 """TO DO"""
-# def decision(size: list, figure: list, field: list) -> list:
-#     pass
+def coords(field, figure, player):
+    X_coords = []
+    O_coords = []
+    star_coords = []
+    for y_f, line_f in enumerate(figure):
+        for x_f, symbol_f in enumerate(line_f):
+            if symbol_f == '*':
+                star_coords.append((y_f, x_f))
+    for y, line in enumerate(field):
+        for x, symbol in enumerate(line):
+            if symbol == 'O':
+                O_coords.append((y, x))
+            elif symbol == 'X':
+                X_coords.append((y, x))
+    if player == 1:
+        return O_coords, X_coords, star_coords
+def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords, size):
+    dy, dx = placed_coord[0]-to_be_placed[0], placed_coord[1]-to_be_placed[1]
+    if dy > size[0] or dx > size[1] or dy < 0 or dx < 0:
+        return None
+    for coord in figure_coords:
+        if coord != to_be_placed:
+            if (coord[0]+dy, coord[1]+dx) in unavilable_coords:
+                return None
+    return [dy, dx]
+
+def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list) -> list:
+    result = []
+    for placed_coord in player_coords_copy:
+        for to_be_placed in figure_coords:
+            result.append(check_avialable(placed_coord, to_be_placed, player_coords+enemy_coords, figure_coords, size))
+    result = [k for k in result if k is not None]
+    debug(f'possible = {result}')
+    return result[random.randint(0, len(result)-1)]
 """TO DO"""
 #___________________________________________________________
 #Input funcs
@@ -83,7 +116,7 @@ def parse_field(player: int, size:list):
 
     :param player int: Represents whether we're the first or second player
     """
-    move = None
+    # move = None
     res = []
     for i in range(size[0]+1):
         l = input()
@@ -91,13 +124,9 @@ def parse_field(player: int, size:list):
             l = l.split()[1]
             res.append([i for i in l])
         debug(f"Field: {l}")
-        if move is None:
-            c = l.lower().find("o" if player == 1 else "x")
-            if c != -1:
-                move = i - 1, c - 4
     debug(res)
-    assert move is not None
-    return move, res
+    # assert move is not None
+    return res
 
 
 def parse_figure():
@@ -134,9 +163,10 @@ def step(player: int):
     """
     move = None
     size = parse_field_info()
-    move, field = parse_field(player, size)
+    field = parse_field(player, size)
     figure = parse_figure()
-    move = decision(size, figure, field)
+    player_coords, enemy_coords, figure_coords = coords(field, figure, player)
+    move = decision(player_coords, enemy_coords, figure_coords, copy.deepcopy(player_coords), size)
     return move
 
 
