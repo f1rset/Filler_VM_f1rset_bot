@@ -39,9 +39,10 @@ def coords(field, figure, player):
         return O_coords, X_coords, star_coords
     elif player == 2:
         return X_coords, O_coords, star_coords
+
 def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords, size, size_f):
     dy, dx = placed_coord[0]-to_be_placed[0], placed_coord[1]-to_be_placed[1]
-    if (dy+size_f[0] > size[0]-1) or (dx+size_f[1] > size[1]-1) or dy < 0 or dx < 0:
+    if (dy+size_f[0] > size[0]) or (dx+size_f[1] > size[1]) or dy < 0 or dx < 0:
         return None
     for coord in figure_coords:
         if coord != to_be_placed:
@@ -58,7 +59,10 @@ def decision(player_coords: list, enemy_coords: list, figure_coords: list, playe
             result.append(check_avialable(placed_coord, to_be_placed, player_coords+enemy_coords, figure_coords, size, size_f))
     result = [k for k in result if k is not None]
     debug(f'possible = {result}')
-    return result[random.randint(0, len(result)-1)]
+    try:
+        return result[random.randint(0, len(result)-1)]
+    except ValueError:
+        return [0, 0]
 """TO DO"""
 #___________________________________________________________
 #Input funcs
