@@ -6,6 +6,7 @@
 """
 import copy
 import random
+import math
 from logging import DEBUG, debug, getLogger
 
 # We use the debugger to print messages to stderr
@@ -21,34 +22,59 @@ getLogger().setLevel(DEBUG)
 #decision funcs
 #___________________________________________________________
 """TO DO"""
-def choose_best(result, used_coords, size, one_coord):
-    lst = []
-    for x in range(size[1]-2, size[1]+3):
-        for y in range(size[0]-2, size[0]+3):
-            lst.append((y, x))
-    debug(lst)
-    count = 0
-    for i in lst:
-        if i in used_coords:
-            count += 1
-    if count <=2:
-        res_count_y = 0
-        counter = 0
-        for j in one_coord:
-            res_count_y += j[0]
-            counter+=1
-        res_count_y = res_count_y/counter
-        if res_count_y < size[0]/2:
-            result = sorted(result, key=lambda x: ((x[0]+size[0])/2, (x[1] + size[1])/2), reverse=True)
-        elif res_count_y > size[0]/2:
-            result = sorted(result, key=lambda x: ((x[0]+size[0])/2, (x[1] + size[1])/2))
+def find_closest(result, enemy_pos, figure_mid):
+    distances = {}
+    for x in result:
+        coords = (figure_mid[0]+x[0], figure_mid[1]+x[1])
+        for i in enemy_pos:
+            distances[math.sqrt((coords[0]-i[0])**2 + (coords[1]-i[1])**2)] = x
+
+    return distances[min(distances.keys())]
+
+def choose_best(result, used_coords, size, one_coord, enemy_pos, size_f):
+    if len(used_coords)-len(enemy_pos) - 20 > len(enemy_pos):
+        result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
         return result[0]
-    else:
-        if random.randint(1,2) == 1:
-            result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]), reverse=True)
+    if size[0] + size[1] > 130:
+        if len(used_coords) - len(enemy_pos) < 70:
+            res_count_y = 0
+            counter = 0
+            for j in one_coord:
+                res_count_y += j[0]
+                counter+=1
+            res_count_y = res_count_y/counter
+            if res_count_y < size[0]/2:
+                result = sorted(result, key=lambda x: (x[1]+x[0]), reverse=True)
+            elif res_count_y > size[0]/2:
+                result = sorted(result, key=lambda x: (x[1]+x[0]))
+            return result[0]
         else:
-            result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]), reverse=True)
-        return result[0]
+            figure_mid = (size_f[0]//2, size_f[1]//2)
+            return find_closest(result, enemy_pos, figure_mid)
+    if (size[0]+ size[1] < 130) and (size[0]+ size[1] > 40):
+        if len(used_coords) - len(enemy_pos) < 20:
+            res_count_y = 0
+            counter = 0
+            for j in one_coord:
+                res_count_y += j[0]
+                counter+=1
+            res_count_y = res_count_y/counter
+            if res_count_y < size[0]/2:
+                result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
+            elif res_count_y > size[0]/2:
+                result = sorted(result, key=lambda x: (x[0]+x[1]))
+            return result[0]
+        else:
+            figure_mid = (size_f[0]//2, size_f[1]//2)
+            return find_closest(result, enemy_pos, figure_mid)
+    else:
+        figure_mid = (size_f[0]//2, size_f[1]//2)
+        return find_closest(result, enemy_pos, figure_mid)
+        # if random.randint(1,2) == 1:
+        #     result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]), reverse=True)
+        # else:
+        #     result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]))
+        # return result[0]
 def coords(field, figure, player):
     X_coords = []
     O_coords = []
@@ -89,7 +115,7 @@ def decision(player_coords: list, enemy_coords: list, figure_coords: list, playe
     # debug(f'possible = {result}')
     try:
         # debug(f'{choose_best(result, player_coords+enemy_coords, size, figure_coords[0])}')
-        return choose_best(result, player_coords+enemy_coords, size, player_coords)
+        return choose_best(result, player_coords+enemy_coords, size, player_coords, enemy_coords, size_f)
     except ValueError:
         return [0, 0]
 """TO DO"""

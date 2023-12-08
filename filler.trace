@@ -1,6 +1,6 @@
-seed = 5891
-O: error on input
+seed = 6542
 X: error on input
-./Ivan_test.py won
+O: error on input
+./f1rset.py won
 Score:
-110AGAINST241
+113AGAINST58
