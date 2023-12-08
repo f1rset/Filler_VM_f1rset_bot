@@ -23,8 +23,8 @@ getLogger().setLevel(DEBUG)
 """TO DO"""
 def choose_best(result, used_coords, size, one_coord):
     lst = []
-    for x in range(size[1]-1, size[1]+2):
-        for y in range(size[0]-1, size[0]+2):
+    for x in range(size[1]-2, size[1]+3):
+        for y in range(size[0]-2, size[0]+3):
             lst.append((y, x))
     debug(lst)
     count = 0
@@ -39,15 +39,15 @@ def choose_best(result, used_coords, size, one_coord):
             counter+=1
         res_count_y = res_count_y/counter
         if res_count_y < size[0]/2:
-            result = sorted(result, key=lambda x: (x[0]+size[0])/2 + (x[1] + size[1])/2, reverse=True)
+            result = sorted(result, key=lambda x: ((x[0]+size[0])/2, (x[1] + size[1])/2), reverse=True)
         elif res_count_y > size[0]/2:
-            result = sorted(result, key=lambda x: (x[0]+size[0])/2 + (x[1] + size[1])/2)
+            result = sorted(result, key=lambda x: ((x[0]+size[0])/2, (x[1] + size[1])/2))
         return result[0]
     else:
-        if random.randint(1,3) == 1:
-            result = sorted(result, key=lambda x: x[1])
+        if random.randint(1,2) == 1:
+            result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]), reverse=True)
         else:
-            result = sorted(result, key=lambda x: x[0])
+            result = sorted(result, key=lambda x: (size[0]-x[0], size[1]-x[1]), reverse=True)
         return result[0]
 def coords(field, figure, player):
     X_coords = []
@@ -80,7 +80,7 @@ def check_avialable(placed_coord, to_be_placed, unavilable_coords, figure_coords
     # debug(f'{dx+size_f[1]} > {size[1]-1}')
     return [dy, dx]
 
-def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list, size_f) -> list:
+def decision(player_coords: list, enemy_coords: list, figure_coords: list, player_coords_copy: list, size: list, size_f, player) -> list:
     result = []
     for placed_coord in player_coords_copy:
         for to_be_placed in figure_coords:
@@ -205,7 +205,7 @@ def step(player: int):
     field = parse_field(player, size)
     figure, size_f = parse_figure()
     player_coords, enemy_coords, figure_coords = coords(field, figure, player)
-    move = decision(player_coords, enemy_coords, figure_coords, copy.deepcopy(player_coords), size, size_f)
+    move = decision(player_coords, enemy_coords, figure_coords, copy.deepcopy(player_coords), size, size_f, player)
     return move
 
 

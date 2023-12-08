@@ -4,7 +4,7 @@
     This is an example of a bot for the 3rd project.
     ...a pretty bad bot to be honest -_-
 """
-
+import random
 from logging import DEBUG, debug, getLogger
 
 # We use the debugger to print messages to stderr
@@ -16,16 +16,7 @@ from logging import DEBUG, debug, getLogger
 
 getLogger().setLevel(DEBUG)
 
-#___________________________________________________________
-#decision funcs
-#___________________________________________________________
-"""TO DO"""
-# def decision(size: list, figure: list, field: list) -> list:
-#     pass
-"""TO DO"""
-#___________________________________________________________
-#Input funcs
-#___________________________________________________________
+
 def parse_field_info():
     """
     Parse the info about the field.
@@ -37,14 +28,13 @@ def parse_field_info():
 
     Plateau 15 17:
     """
-    l = input()
-    l = l.replace(':', '').split(' ')
-    l = [int(l[-2]), int(l[-1])]
-    debug(f"Description of the field: {l}")
-    return l
+    entered_data = input()
+    entered_data = entered_data.replace('Plateau','').replace(':','')
+    entered_data = entered_data.strip().split(' ')
+    debug(f"Description of the field: {entered_data}")
+    return entered_data
 
-
-def parse_field(player: int, size:list):
+def parse_field(player: int):
     """
     Parse the field.
 
@@ -83,22 +73,15 @@ def parse_field(player: int, size:list):
 
     :param player int: Represents whether we're the first or second player
     """
-    move = None
-    res = []
-    for i in range(size[0]+1):
-        l = input()
-        if i != 0:
-            l = l.split()[1]
-            res.append([i for i in l])
-        debug(f"Field: {l}")
-        if move is None:
-            c = l.lower().find("o" if player == 1 else "x")
-            if c != -1:
-                move = i - 1, c - 4
-    debug(res)
-    assert move is not None
-    return move
-
+    board = []
+    board_data = parse_field_info()
+    length = int(board_data[0])
+    for _ in range(length+1):
+        entered_data = input()
+        debug(f"Field: {board_data}")
+        board.append([j for j in entered_data[4::]])
+        figure = ('O' if player == 1 else 'X')
+    return board,figure
 
 def parse_figure():
     """
@@ -114,17 +97,26 @@ def parse_figure():
     **
     ..
     """
-    result = []
-    l = input()
-    debug(f"Piece: {l}")
-    height = int(l.split()[1])
+    piece = []
+    entered_data = input()
+    debug(f"Piece: {entered_data}")
+    height = int(entered_data.split()[1])
     for _ in range(height):
-        l = input()
-        debug(f"Piece: {l}")
-        result.append([i for i in l])
-    debug(result)
-    return result
+        entered_data = input()
+        piece.append([j for j in entered_data])
+        debug(f"Piece: {entered_data}")
+    return piece
 
+def distance_to_opponent(board, row, col, opponent_figure):
+    """
+    Calculate the Manhattan distance from the specified position to the closest opponent's figure.
+    """
+    distances = []
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if board[i][j] == opponent_figure:
+                distances.append(abs(row - i) + abs(col - j))
+    return min(distances) if distances else float('inf')
 
 def step(player: int):
     """
@@ -132,12 +124,53 @@ def step(player: int):
 
     :param player int: Represents whether we're the first or second player
     """
-    move = None
-    size = parse_field_info()
-    move, field = parse_field(player, size)
-    figure = parse_figure()
-    # move = decision(size, figure, field)
-    return move
+    board, figure = parse_field(player)
+    board.pop(0)
+    piece = parse_figure()
+    result = []
+
+    opponent_figure = 'X' if player == 1 else 'O'
+    for i in range(len(board) - len(piece) + 1):
+        for k in range(len(board[i]) - len(piece[0]) + 1):
+            num = 0
+            opponent_moves = 0  # restriction
+            surrounding_opponent_cells = 0  # new metric
+
+            for item in range(len(piece)):
+                for el in range(len(piece[0])):
+                    if piece[item][el] == '*':
+                        if board[i + item][k + el] == figure:
+                            num += 1
+                        elif board[i + item][k + el] != '.':
+                            num += 3
+                        # opponent restriction
+                        if board[i + item][k + el] == opponent_figure:
+                            opponent_moves += 2
+
+                        # Check if the move surrounds opponent's figure
+                        for x in range(-1, 2):
+                            for y in range(-1, 2):
+                                ni, nk = i + item + x, k + el + y
+                                if 0 <= ni < len(board) and 0 <= nk < len(board[i]) and board[ni][nk] == opponent_figure:
+                                    surrounding_opponent_cells += 1
+
+            if num == 1:
+                result.append((i, k, opponent_moves + surrounding_opponent_cells))
+
+    result.sort(key=lambda x: (
+        distance_to_opponent(board, x[0], x[1], opponent_figure),
+        -min(x[0], len(board) - x[0], x[1], len(board[0]) - x[1])
+    ))
+
+    result.sort(key=lambda x: x[2], reverse=True) 
+
+    if result:
+        return result[0][:2]
+
+    return random.choice(result) if result else None
+
+
+
 
 
 def play(player: int):
@@ -149,7 +182,6 @@ def play(player: int):
     while True:
         move = step(player)
         print(*move)
-
 
 def parse_info_about_player():
     """
@@ -163,14 +195,12 @@ def parse_info_about_player():
     debug(f"Info about the player: {i}")
     return 1 if "p1 :" in i else 2
 
-
 def main():
     player = parse_info_about_player()
     try:
         play(player)
     except EOFError:
         debug("Cannot get input. Seems that we've lost ):")
-
 
 if __name__ == "__main__":
     main()
