@@ -31,7 +31,7 @@ def parse_field_info():
     """
     l = input().replace(':','')
     l = l.split()
-    debug(f"Description of the field: {int(l[1]),int(l[2])}")
+    # debug(f"Description of the field: {int(l[1]),int(l[2])}")
     return (int(l[1]),int(l[2]))
 
 def parse_field(size: tuple):
@@ -109,11 +109,14 @@ def parse_figure():
     **
     ..
     """
+    
     l = input().replace(':','')
+    
     l = l.split()
     lines=[]
     for _ in range(int(l[1])):
         line=input()
+        # debug(f'llllll {line}')
         row=[]
         for i in range(int(l[2])):
             row.append(line[i])
@@ -135,7 +138,7 @@ def step(player: int):
     move = None
     info=parse_field_info()
     field =parse_field(info)
-    copfield= copy.deepcopy(field)
+
     figure=parse_figure()
     # debug(f"Piece1111111111: {field}")
 
@@ -150,21 +153,54 @@ def step(player: int):
                         if player == 1 and field[x+x1][y+y1].lower()=='o' and figure[x1][y1] == '*':
                             count+=1
                         if player == 1 and field[x+x1][y+y1].lower()=='x':
-                            count-=8
+                            count-=200
                         if player == 2 and field[x+x1][y+y1].lower()=='x' and figure[x1][y1] == '*':
                             count+=1
                         if player == 2 and field[x+x1][y+y1].lower()=='o':
-                            count-=8
-                        copfield[x+x1][y+y1]=figure[x1][y1]
+                            count-=200
                     except IndexError:
                         count+=2
             if count==1:
                 l.append((x,y))
             count=0
-            copfield = copy.deepcopy(field)
-
-
-    move = random.choice(l)
+    min_1=10000
+    to_app=(0,0)
+    for x,m in enumerate(field):
+        for y,k in enumerate(m):
+            if k == 'O' and player==2:
+                for x1,y1 in l:
+                    leng=0
+                    for x_f, line1 in enumerate(figure):
+                        for y_f, _ in enumerate(line1):
+                            a=(((x1+x_f)-x)**2+((y1+y_f)-y)**2)**0.5
+                            leng+=a
+                    if leng<min_1 and leng>20:
+                        min_1 = leng
+                        to_app = (x1,y1)
+            if k == 'X' and player==1:
+                for x1,y1 in l:
+                    leng=0
+                    for x_f, line1 in enumerate(figure):
+                        for y_f, _ in enumerate(line1):
+                            a=(((x1+x_f)-x)**2+((y1+y_f)-y)**2)**0.5
+                            leng+=a
+                    if leng<min_1 and leng>20:
+                        min_1 = leng
+                        to_app = (x1,y1)
+            # if k == 'O' and player==2:
+            #     for x1,y1 in l:
+            #         a=((x1-x)**2+(y1-y)**2)**0.5
+            #         if a<min_1:
+            #             min_1 = a
+            #             to_app = (x1,y1)
+            # if k == 'X' and player==1:
+            #     for x1,y1 in l:
+            #         a=((x1-x)**2+(y1-y)**2)**0.5
+            #         if a<min_1:
+            #             min_1 = a
+            #             to_app = (x1,y1)
+    # debug(f'llllll {l}')
+    move = to_app
     # parse_field_info()
     # move = parse_field(player)
     # parse_figure()
@@ -175,7 +211,7 @@ def step(player: int):
 def play(player: int):
     """
     Main game loop.
-
+    # ruby ./filler_vm -f ./map01 -p1 'python ./player1.py' -p2 'python ./player1.py' | python visualizer.py
     :param player int: Represents whether we're the first or second player
     """
     m=0
@@ -206,8 +242,10 @@ def main():
         play(player)
         
     except EOFError:
-        debug("Cannot get input. Seems that we've lost ):")
-
+        if player == 1:
+            debug("Cannot get input. Seems that first player lost ):")
+        else:
+            debug("Cannot get input. Seems that second player lost ):")
 
 if __name__ == "__main__":
     main()

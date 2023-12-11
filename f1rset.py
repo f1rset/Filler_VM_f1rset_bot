@@ -32,11 +32,11 @@ def find_closest(result, enemy_pos, figure_mid):
     return distances[min(distances.keys())]
 
 def choose_best(result, used_coords, size, one_coord, enemy_pos, size_f):
-    if len(used_coords)-len(enemy_pos) - 20 > len(enemy_pos):
-        result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
-        return result[0]
     if size[0] + size[1] > 130:
-        if len(used_coords) - len(enemy_pos) < 70:
+        if len(used_coords)-len(enemy_pos) - 100 > len(enemy_pos):
+            result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
+            return result[0]
+        if len(used_coords) - len(enemy_pos) < 300:
             res_count_y = 0
             counter = 0
             for j in one_coord:
@@ -44,30 +44,65 @@ def choose_best(result, used_coords, size, one_coord, enemy_pos, size_f):
                 counter+=1
             res_count_y = res_count_y/counter
             if res_count_y < size[0]/2:
-                result = sorted(result, key=lambda x: (x[1]+x[0]), reverse=True)
+                if random.randint(0,1):
+                    result = sorted(result, key=lambda x: x[0], reverse=True)
+                else:
+                    result = sorted(result, key=lambda x: x[1], reverse=True)
             elif res_count_y > size[0]/2:
-                result = sorted(result, key=lambda x: (x[1]+x[0]))
+                if random.randint(0,1):
+                    result = sorted(result, key=lambda x: x[0])
+                else:
+                    result = sorted(result, key=lambda x: x[1])
             return result[0]
         else:
             figure_mid = (size_f[0]//2, size_f[1]//2)
             return find_closest(result, enemy_pos, figure_mid)
     if (size[0]+ size[1] < 130) and (size[0]+ size[1] > 40):
-        if len(used_coords) - len(enemy_pos) < 20:
-            res_count_y = 0
-            counter = 0
-            for j in one_coord:
-                res_count_y += j[0]
-                counter+=1
-            res_count_y = res_count_y/counter
-            if res_count_y < size[0]/2:
+        if size[0]+10< size[1]:
+            if len(used_coords)-len(enemy_pos) - 80 > len(enemy_pos):
                 result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
-            elif res_count_y > size[0]/2:
-                result = sorted(result, key=lambda x: (x[0]+x[1]))
-            return result[0]
+                return result[0]
+            if len(used_coords) - len(enemy_pos) < 100:
+                res_count_y = 0
+                counter = 0
+                for j in one_coord:
+                    res_count_y += j[0]
+                    counter+=1
+                res_count_y = res_count_y/counter
+                if res_count_y < size[0]/2:
+                    result = sorted(result, key=lambda x: x[1]+x[0]/2, reverse=True)
+                elif res_count_y > size[0]/2:
+                    result = sorted(result, key=lambda x: x[0]+x[1])
+                return result[0]
+            else:
+                figure_mid = (size_f[0]//2, size_f[1]//2)
+                return find_closest(result, enemy_pos, figure_mid)
         else:
-            figure_mid = (size_f[0]//2, size_f[1]//2)
-            return find_closest(result, enemy_pos, figure_mid)
+            if len(used_coords)-len(enemy_pos) - 80 > len(enemy_pos):
+                result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
+                return result[0]
+            if len(used_coords) - len(enemy_pos) < 200:
+                res_count_y = 0
+                counter = 0
+                for j in one_coord:
+                    res_count_y += j[0]
+                    counter+=1
+                res_count_y = res_count_y/counter
+                if res_count_y < size[0]/2:
+                    result = sorted(result, key=lambda x: x[1]+x[0]/2, reverse=True)
+                elif res_count_y > size[0]/2:
+                    if len(used_coords) - len(enemy_pos) < 40:
+                        result = sorted(result, key=lambda x: x[0])
+                    else:
+                        result = sorted(result, key=lambda x: x[0]+x[1])
+                return result[0]
+            else:
+                figure_mid = (size_f[0]//2, size_f[1]//2)
+                return find_closest(result, enemy_pos, figure_mid)
     else:
+        # if len(used_coords)-len(enemy_pos) - 20 > len(enemy_pos):
+        #     result = sorted(result, key=lambda x: (x[0]+x[1]), reverse=True)
+        #     return result[0]
         figure_mid = (size_f[0]//2, size_f[1]//2)
         return find_closest(result, enemy_pos, figure_mid)
         # if random.randint(1,2) == 1:
@@ -242,8 +277,11 @@ def play(player: int):
     :param player int: Represents whether we're the first or second player
     """
     while True:
-        move = step(player)
-        print(*move)
+        try:
+            move = step(player)
+            print(*move)
+        except TypeError:
+            print(*(0,0))
 
 
 def parse_info_about_player():
