@@ -13,3 +13,6 @@ If you want to visualize type **"| py/python/python3 visualizer.py"** at the end
 1) On the smallest map it is just moving toward the opponent.
 2) On the middle sized map it firstly draws a diagonal and than moves toward the opponent.
 3) On huge map it has a bit harder algorithm, because it makes two lines to give lesser space for opponent and than moves towards it.
+For details see:
+[algorithm_Stetsiuk_Kostyantin.pdf](https://github.com/f1rset/Filler_VM_f1rset_bot/files/13692551/algorithm_Stetsiuk_Kostyantin.pdf)
+
