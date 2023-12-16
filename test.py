@@ -1,5 +1,5 @@
-with open('map60', 'w') as file:
-    for i in range(60):
-        for j in range(60):
+with open('map40', 'w') as file:
+    for i in range(40):
+        for j in range(40):
             file.write('.')
         file.write('\n')
