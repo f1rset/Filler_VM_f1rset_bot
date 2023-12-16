@@ -34,9 +34,9 @@ def find_closest(result: list, enemy_pos: list, figure_mid: tuple) -> list:
     """
     distances = {}
     for x in result:
-        coords = (figure_mid[0]+x[0], figure_mid[1]+x[1])
+        coords_1 = (figure_mid[0]+x[0], figure_mid[1]+x[1])
         for i in enemy_pos:
-            distances[math.sqrt((coords[0]-i[0])**2 + (coords[1]-i[1])**2)] = x
+            distances[math.sqrt((coords_1[0]-i[0])**2 + (coords_1[1]-i[1])**2)] = x
 
     return distances[min(distances.keys())]
 
