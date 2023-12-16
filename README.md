@@ -5,7 +5,7 @@ to start a bot check if all programs have permission to start, if not type **"ch
 
 ![image](https://github.com/f1rset/Filler_VM_f1rset_bot/assets/149361945/1f82a871-e187-4412-8ebe-da16c0a7e5b6)
 
-If you want to visualize type **"| py/python/python3 visualizer.py"**
+If you want to visualize type **"| py/python/python3 visualizer.py"** at the end.
 
 ![image](https://github.com/f1rset/Filler_VM_f1rset_bot/assets/149361945/68c3253c-d424-4fc7-9b1d-db2467d8f4d0)
 
